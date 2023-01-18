@@ -4,7 +4,7 @@ from math import cos, sin, pi
 import numpy as np
 import colorsys
 
-os.environ["SDL_VIDEO_CENTERED"] = '1'
+os.environ["SDL_VIDEO_CENTERED"] = "1"
 WIDTH, HEIGHT = 800, 800
 
 BLACK = (0, 0, 0)
@@ -12,13 +12,12 @@ hue = 0
 
 pygame.init()
 pygame.display.set_caption("4D Cube Projection")
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
+screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
 clock = pygame.time.Clock()
 FPS = 60
 
 angle = 0
 speed = 0.008
-cube_position = [WIDTH // 2, HEIGHT // 2]
 scale = 15000
 
 points = [
@@ -43,8 +42,6 @@ projected_points = [j for j in range(len(points))]
 
 
 def rotations_3d():
-    global angle
-
     c = cos(angle)
     s = sin(angle)
 
@@ -83,8 +80,6 @@ def rotations_3d():
 
 
 def rotations_4d():
-    global angle
-
     c = cos(angle)
     s = sin(angle)
 
@@ -107,9 +102,7 @@ def rotations_4d():
 
 
 def projection(rotation_axis, rotation_plane, rotation_4D, rotation_tesseract):
-    index = 0
-
-    for point in points:
+    for index, point in enumerate(points):
         rotated_3D = np.matmul(rotation_plane, point)
         rotated_3D = np.matmul(rotation_4D, rotated_3D)
 
@@ -134,7 +127,6 @@ def projection(rotation_axis, rotation_plane, rotation_4D, rotation_tesseract):
 
         projected_points[index] = [x, y]
         # pygame.draw.circle(screen, (255, 0, 0), (x, y), 8) # Display corners
-        index += 1
 
 
 def hsv2rgb(h, s, v):
@@ -179,20 +171,31 @@ def main():
     draw_edges(projected_points)
 
 
-run = True
-while run:
+def exit():
+    pygame.display.quit()
+    pygame.quit()
+    quit()
 
-    clock.tick(FPS)
+
+while True:
+    delta_time = clock.tick(FPS) / 1000
     screen.fill(BLACK)
+
+    size = screen.get_size()
+    cube_position = [size[0] / 2, size[1] / 2]
 
     main()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            run = False
+            exit()
+
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_ESCAPE:
-                run = False
+                exit()
+
+        elif event.type == pygame.MOUSEWHEEL:
+            scale = max(scale + (event.y * 5000) * delta_time, 1000)
 
     pygame.display.update()
     hue += 0.0002
