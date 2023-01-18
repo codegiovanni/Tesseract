@@ -182,7 +182,7 @@ while True:
     screen.fill(BLACK)
 
     size = screen.get_size()
-    cube_position = [size[0] / 2, size[1] / 2]
+    cube_position = [size[0] // 2, size[1] // 2]
 
     main()
 
